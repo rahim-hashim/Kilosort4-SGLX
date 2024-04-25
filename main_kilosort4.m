@@ -31,7 +31,7 @@ chanMapFile = 'neuropixels_NHP_channel_map_linear_v1.mat'; % NHP linear channel 
 root = 'C:\Users\Penfield\Downloads\';
 % root = 'C:\SGL_DATA\';
 % set date
-date = '20240109';      % YYYYMMDD
+date = '20240115';      % YYYYMMDD
 % set monkey
 monkey = 'gandalf';     % lower case
 

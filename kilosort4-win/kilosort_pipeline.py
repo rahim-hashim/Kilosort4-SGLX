@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import shutil
 import argparse
 import subprocess
@@ -129,7 +130,11 @@ def run_kilosort4(bin_file=None,
 									n_channels=385,
 									probe_path='neuropixels_NHP_channel_map_linear_v1.mat'):
 	data_dir = os.path.dirname(bin_file)
-	settings = {'filename': bin_file, 'data_dir': data_dir, 'results_dir': results_dir, 'n_chan_bin': n_channels, 'probe_path': probe_path}
+	settings = {'filename': bin_file, 
+							'data_dir': data_dir, 
+							'results_dir': results_dir, 
+							'n_chan_bin': n_channels, 
+							'probe_path': probe_path}
 
 	ops, st, clu, tF, Wall, similar_templates, is_ref, est_contam_rate = \
 			run_kilosort(settings=settings)
@@ -138,7 +143,7 @@ def run_kilosort4(bin_file=None,
 	print('  Done!')
 
 
-def run_kilo4(kilosort_folder, 
+def run_kilo_pipeline(kilosort_folder, 
 							config_file_path,
 							chan_map_file,
 							root,
@@ -154,7 +159,7 @@ def run_kilo4(kilosort_folder,
 							delete_catbin,
 							run_tprime):
 	'''
-	Run Kilosort4 on a dataset
+	Run Kilsort preprocessing steps and Kilosort4 on a dataset
 	
 	Args
 	----
@@ -218,9 +223,12 @@ def run_kilo4(kilosort_folder,
 		# Run CatGT
 		if run_catgt:
 			print(f"Running CatGT on {session_folder}")
+			# time how long it takes
+			start_time = time.time()
 			catgt_command = f"runit.bat -dir={root} -run={monkey}_{date} -prb_fld -g={g_num[1:]} -t=0 -ni -prb={cat_prb_fld} -ap -gblcar"
 			print(f"  Bash command: {catgt_command}")
 			subprocess.run(catgt_command, cwd=os.path.join(kilosort_folder, "CatGT-win/"), shell=True)
+			print(f"  CatGT complete. Time elapsed: {time.time() - start_time:.2f} seconds")
 
 		# Loop through all subdirectories and run Kilosort
 		for imec_folder_name in imec_dirs:
@@ -235,7 +243,7 @@ def run_kilo4(kilosort_folder,
 			dest_folder_path = os.path.join(root_h, f"{imec_folder_name}_ks4_cat")
 			os.makedirs(dest_folder_path, exist_ok=True)
 
-			fig_path = os.path.join(root_h, 'KS_figures')
+			fig_path = os.path.join(root_h, 'KS4_figures')
 			os.makedirs(fig_path, exist_ok=True)
 
 			binary_files = [f for f in os.listdir(root_z) if f.endswith('.bin') and '.ap' in f]
@@ -248,6 +256,7 @@ def run_kilo4(kilosort_folder,
 				binary_file = [f for f in binary_files if 'tcat' not in f]
 				meta_files = [f for f in meta_files if 'tcat' not in f]
 			elif include_catgt == 2:
+				print("  Including only CatGT .bin files...")
 				binary_files = [f for f in binary_files if 'tcat' in f]
 				meta_files = [f for f in meta_files if 'tcat' in f]
 
