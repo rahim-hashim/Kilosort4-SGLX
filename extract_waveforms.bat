@@ -10,7 +10,7 @@
 :: because Kilosort3 does not run it by default, and when performing 
 :: manual curation, it is helpful to have the waveforms for each cluster
 
-call activate phy2
+: : call activate phy2
 phy extract-waveforms %1
 echo "Waveform extraction complete"
 call deactivate
